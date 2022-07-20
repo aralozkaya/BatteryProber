@@ -58,7 +58,7 @@ class myButton {
 
 			hdc = GetDC(hParent);
 			bTextSize = {};
-			bTextLen = wcslen(bText);
+			bTextLen = (int) wcslen(bText);
 			GetTextExtentPoint32(hdc, bText, bTextLen, &bTextSize);
 
 			if (height == -1) {
@@ -75,7 +75,7 @@ class myButton {
 		~myButton() {
 			std::vector<myButton*>::iterator it;
 			it = find(buttonList.begin(), buttonList.end(), this);
-			int index = it - buttonList.begin();
+			int index = (int) (it - buttonList.begin());
 			buttonList.erase(buttonList.begin() + index);
 			if (buttonList.size() == 0) {
 				initialized = false;
@@ -218,12 +218,14 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 			WCHAR message[] = TEXT("\nBattery Prober Help Document\n\n"
 				"\n"
 				"prober.exe\n"
-				"Shows a window with the current battery status(for testing purposes)\n\n"
+				"Shows the main GUI window\n\n"
 				"prober.exe <arg1> <arg2>\n"
 				"Checks the AC power status, if connected, run arg1; if not, run arg2\n\n"
+				"prober.exe /h\n"
+				"Shows this message\n\n"
 				"\n"
 				"Note that both arg1 and arg2 HAVE TO BE .exe or .bat files\n\0");
-			size_t messageLen = wcslen(message);
+			DWORD messageLen = (DWORD) wcslen(message);
 			WriteConsole(consoleHandle, message, messageLen, NULL, NULL);
 			FreeConsole();
 			LocalFree(consoleHandle);
@@ -283,14 +285,16 @@ LRESULT CALLBACK mainWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 			}
 
 			else if (LOWORD(wParam) == BTN_ABOUT && HIWORD(wParam) == BN_CLICKED) {
-				WCHAR message[] = TEXT("Battery Prober Help Document\n\n"
+				WCHAR message[] = TEXT("\nBattery Prober Help Document\n\n"
 					"\n"
 					"prober.exe\n"
-					"Shows a window with the current battery status(for testing purposes)\n\n"
+					"Shows the main GUI window\n\n"
 					"prober.exe <arg1> <arg2>\n"
 					"Checks the AC power status, if connected, run arg1; if not, run arg2\n\n"
+					"prober.exe /h\n"
+					"Shows this message\n\n"
 					"\n"
-					"Note that both arg1 and arg2 HAVE TO BE .exe or .bat files");
+					"Note that both arg1 and arg2 HAVE TO BE .exe or .bat files\n\0");
 
 				MessageBox((HWND) lParam, message, TEXT("Information"), MB_ICONQUESTION);
 			}
