@@ -23,17 +23,30 @@
 #include <shobjidl.h> 
 #include <vector>
 #include <Lmcons.h>
+#include <winrt/Windows.Foundation.h>
+#include <winrt/Windows.UI.ViewManagement.h>
 #pragma warning(disable : 4996)
+
+using namespace winrt::Windows::UI::ViewManagement;
 
 LRESULT CALLBACK mainWindowProc(HWND, UINT, WPARAM, LPARAM);
 void showAboutMessageBox(HWND hwnd);
 bool checkExistingTask();
 bool elevatePrompt(HWND hwnd);
 
+inline bool IsColorLight(winrt::Windows::UI::Color& clr)
+{
+	return (((5 * clr.G) + (2 * clr.R) + clr.B) > (8 * 128));
+}
+
 static int argc;
 static LPWSTR* argv;
 
 int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nShowCmd) {
+	auto settings = UISettings();
+	auto foreground = settings.GetColorValue(UIColorType::Foreground);
+	bool isDarkMode = (bool)IsColorLight(foreground);
+
 	LPCWSTR lpwCmdLine = GetCommandLine();
 
 	argv = CommandLineToArgvW(lpwCmdLine, &argc);
@@ -78,6 +91,12 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 				MessageBox(NULL, TEXT("Error Showing Window"), TEXT("ERROR"), MB_ICONERROR);
 				return EXIT_FAILURE;
 			}
+
+			auto revoker = settings.ColorValuesChanged([settings](auto&&...)
+				{
+					auto foregroundRevoker = settings.GetColorValue(UIColorType::Foreground);
+					bool isDarkModeRevoker = (bool)IsColorLight(foregroundRevoker);
+				});
 
 			MSG msg = { };
 			while (GetMessage(&msg, NULL, 0, 0) > 0)
