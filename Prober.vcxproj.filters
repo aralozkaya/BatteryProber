@@ -18,12 +18,21 @@
     <ClCompile Include="Source.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="pugixml.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="myButton.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="pugiconfig.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="pugixml.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -36,5 +45,10 @@
     <Image Include="appicon.ico">
       <Filter>Resource Files</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="BatteryProbeTaskTemplate.xml">
+      <Filter>Resource Files</Filter>
+    </Xml>
   </ItemGroup>
 </Project>

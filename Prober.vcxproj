@@ -135,10 +135,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="pugixml.cpp" />
     <ClCompile Include="Source.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="myButton.h" />
+    <ClInclude Include="pugiconfig.hpp" />
+    <ClInclude Include="pugixml.hpp" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
@@ -146,6 +149,9 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="appicon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="BatteryProbeTaskTemplate.xml" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
