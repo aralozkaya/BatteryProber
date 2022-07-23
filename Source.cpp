@@ -25,11 +25,18 @@
 #include <Lmcons.h>
 #include <winrt/Windows.Foundation.h>
 #include <winrt/Windows.UI.ViewManagement.h>
+#include <dwmapi.h>
 #pragma warning(disable : 4996)
+#pragma comment(lib, "Dwmapi.lib")
+
+#ifndef DWMWA_USE_IMMERSIVE_DARK_MODE
+#define DWMWA_USE_IMMERSIVE_DARK_MODE 20
+#endif
 
 using namespace winrt::Windows::UI::ViewManagement;
 
 LRESULT CALLBACK mainWindowProc(HWND, UINT, WPARAM, LPARAM);
+HRESULT setColorMode(HWND hwnd, bool isDark);
 void showAboutMessageBox(HWND hwnd);
 bool checkExistingTask();
 bool elevatePrompt(HWND hwnd);
@@ -43,10 +50,6 @@ static int argc;
 static LPWSTR* argv;
 
 int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nShowCmd) {
-	auto settings = UISettings();
-	auto foreground = settings.GetColorValue(UIColorType::Foreground);
-	bool isDarkMode = (bool)IsColorLight(foreground);
-
 	LPCWSTR lpwCmdLine = GetCommandLine();
 
 	argv = CommandLineToArgvW(lpwCmdLine, &argc);
@@ -92,10 +95,16 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 				return EXIT_FAILURE;
 			}
 
-			auto revoker = settings.ColorValuesChanged([settings](auto&&...)
+			auto settings = UISettings();
+			auto foreground = settings.GetColorValue(UIColorType::Foreground);
+			bool isDarkMode = (bool)IsColorLight(foreground);
+			setColorMode(hMainWindow, isDarkMode);
+
+			auto revoker = settings.ColorValuesChanged([settings, hMainWindow](auto&&...)
 				{
 					auto foregroundRevoker = settings.GetColorValue(UIColorType::Foreground);
 					bool isDarkModeRevoker = (bool)IsColorLight(foregroundRevoker);
+					setColorMode(hMainWindow, isDarkModeRevoker);
 				});
 
 			MSG msg = { };
@@ -449,4 +458,17 @@ bool elevatePrompt(HWND hwnd) {
 		return true;
 	}
 	return false;
+}
+
+HRESULT setColorMode(HWND hwnd, bool isDark) {
+	if (isDark) {
+		BOOL value = TRUE;
+		::DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &value, sizeof(value));
+		return RedrawWindow(hwnd, NULL, NULL, RDW_FRAME | RDW_INVALIDATE | RDW_ERASENOW);
+	}
+	else {
+		BOOL value = FALSE;
+		::DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &value, sizeof(value));
+		return RedrawWindow(hwnd, NULL, NULL, RDW_FRAME | RDW_INVALIDATE | RDW_ERASENOW);
+	}
 }
