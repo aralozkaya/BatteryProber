@@ -150,6 +150,7 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="appicon.ico" />
+    <Image Include="appiconlight.ico" />
   </ItemGroup>
   <ItemGroup>
     <Xml Include="BatteryProbeTaskTemplate.xml" />

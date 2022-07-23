@@ -48,6 +48,8 @@ inline bool IsColorLight(winrt::Windows::UI::Color& clr)
 
 static int argc;
 static LPWSTR* argv;
+auto settings = UISettings();
+auto foreground = settings.GetColorValue(UIColorType::Foreground);
 
 int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nShowCmd) {
 	LPCWSTR lpwCmdLine = GetCommandLine();
@@ -69,8 +71,8 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 			MainWindow.hInstance = hInstance;
 			MainWindow.lpfnWndProc = mainWindowProc;
 			MainWindow.lpszClassName = TEXT("MainWindow");
-			MainWindow.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-			MainWindow.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON1));
+			MainWindow.hbrBackground = (HBRUSH) (COLOR_WINDOW + 1);
+			MainWindow.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON2));
 
 			RegisterClass(&MainWindow);
 
@@ -95,16 +97,14 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 				return EXIT_FAILURE;
 			}
 
-			auto settings = UISettings();
-			auto foreground = settings.GetColorValue(UIColorType::Foreground);
 			bool isDarkMode = (bool)IsColorLight(foreground);
 			setColorMode(hMainWindow, isDarkMode);
 
-			auto revoker = settings.ColorValuesChanged([settings, hMainWindow](auto&&...)
+			auto revoker = settings.ColorValuesChanged([hMainWindow](auto&&...)
 				{
-					auto foregroundRevoker = settings.GetColorValue(UIColorType::Foreground);
-					bool isDarkModeRevoker = (bool)IsColorLight(foregroundRevoker);
-					setColorMode(hMainWindow, isDarkModeRevoker);
+					foreground = settings.GetColorValue(UIColorType::Foreground);
+					bool isDarkMode = (bool)IsColorLight(foreground);
+					setColorMode(hMainWindow, isDarkMode);
 				});
 
 			MSG msg = { };
@@ -397,6 +397,7 @@ LRESULT CALLBACK mainWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 
 			return 0;
 		}
+
 		case WM_CLOSE:
 			for each (myButton* button in myButton::getButtonList()) {
 				delete button;
@@ -461,14 +462,22 @@ bool elevatePrompt(HWND hwnd) {
 }
 
 HRESULT setColorMode(HWND hwnd, bool isDark) {
-	if (isDark) {
-		BOOL value = TRUE;
-		::DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &value, sizeof(value));
-		return RedrawWindow(hwnd, NULL, NULL, RDW_FRAME | RDW_INVALIDATE | RDW_ERASENOW);
+	BOOL value;
+	if (isDark) { 
+		value = TRUE;
+		HICON lightIcon = LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_ICON2));
+		SendMessage(hwnd, WM_SETICON, (WPARAM)ICON_SMALL, NULL);
+		SendMessage(hwnd, WM_SETICON, (WPARAM)ICON_BIG, NULL);
+		SendMessage(hwnd, WM_SETICON, (WPARAM)ICON_SMALL, (LPARAM) lightIcon);
+		SendMessage(hwnd, WM_SETICON, (WPARAM)ICON_BIG, (LPARAM)lightIcon);
 	}
-	else {
-		BOOL value = FALSE;
-		::DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &value, sizeof(value));
-		return RedrawWindow(hwnd, NULL, NULL, RDW_FRAME | RDW_INVALIDATE | RDW_ERASENOW);
+	else { 
+		value = FALSE;
+		HICON darkIcon = LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_ICON1));
+		SendMessage(hwnd, WM_SETICON, (WPARAM)ICON_SMALL, NULL);
+		SendMessage(hwnd, WM_SETICON, (WPARAM)ICON_BIG, NULL);
+		SendMessage(hwnd, WM_SETICON, (WPARAM)ICON_SMALL, (LPARAM)darkIcon);
+		SendMessage(hwnd, WM_SETICON, (WPARAM)ICON_BIG, (LPARAM)darkIcon);
 	}
+	return ::DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &value, sizeof(value));
 }

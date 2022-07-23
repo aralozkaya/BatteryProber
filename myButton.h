@@ -101,6 +101,7 @@ public:
 		SendMessage(hWnd, WM_SETFONT, (LPARAM)guiFont, true);
 	}
 
+	HWND getHWND() const { return this->hWnd; };
 	LPCTSTR getText() const { return this->bText; };
 	HMENU getHMENU() const { return this->hMenu; };
 	int getHeight() const { return this->height; };

@@ -45,6 +45,9 @@
     <Image Include="appicon.ico">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="appiconlight.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Xml Include="BatteryProbeTaskTemplate.xml">
