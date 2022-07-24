@@ -247,9 +247,10 @@ LRESULT CALLBACK mainWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 					hr = CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_INPROC_SERVER, IID_IFileOpenDialog, (LPVOID*)&openArgDialog);
 					COMDLG_FILTERSPEC acceptedTypes[] = {
 						{TEXT("Batch Files"), TEXT("*.bat")},
+						{TEXT("Visual Basic Scripts"), TEXT("*.vbs")},
 						{TEXT("Executables"), TEXT("*.exe")}
 					};
-					openArgDialog->SetFileTypes(2, acceptedTypes);
+					openArgDialog->SetFileTypes(3, acceptedTypes);
 					openArgDialog->SetTitle(TEXT("Choose Program to Launch when AC Connects"));
 					openArgDialog->Show(hwnd);
 					IShellItem* pItem;
